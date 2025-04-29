@@ -1,8 +1,6 @@
 # Enterobacter-TAOG-Finder  
 Easy to identify T6SS-associated ortholog groups in *Enterobacter* genomes.
 
-***
-
 ## Usage
 The locus_finder.py can detect T6SS loci from *Proteinortho v6.2.3* output csv files. You can run it through python3 when giving it a csv file and it will directly output results on the screen.
 
@@ -21,7 +19,5 @@ python3 Comparative_T6SS.py <orthologue_file.txt> <presence_genomes.txt> <absenc
 ```
 The `presence_genomes.txt` and the `absence_genomes.txt` are the files contain which genomes contain complete T6SS and no T6SS.
 You can find all the example files in Datasets documents.
-
-***
 
 ## Datasets
