@@ -9,8 +9,8 @@ with open("orthologue_file.txt", "r") as ortho_file:
     ortho_lines = ortho_file.readlines()
 
 # Extract genome names from the first line of the orthologue file
-genome_names = ortho_lines[0].strip().split('\t')[0:]
-
+genome_names = ortho_lines[0].strip().split('\t')[1:]
+#print(genome_names)
 # Read T6SS presence genomes list
 with open("presence_genomes.txt", "r") as presence_file:
     t6ss_presence_genomes = presence_file.read().splitlines()
@@ -18,7 +18,7 @@ with open("presence_genomes.txt", "r") as presence_file:
 # Read T6SS absence genomes list
 with open("absence_genomes.txt", "r") as absence_file:
     t6ss_absence_genomes = absence_file.read().splitlines()
-
+#print(t6ss_absence_genomes)
 # Initialize lists to store presence and absence counts for each group
 t6ss_presence_counts = []
 t6ss_absence_counts = []
@@ -29,8 +29,9 @@ p_values = []
 # Iterate through each group in the orthologue file
 for line in ortho_lines[1:]:
     group, *genes = line.strip().split('\t')
-    t6ss_presence_count = sum(1 for genome in t6ss_presence_genomes if any(gene != '*' for gene in genes[genome_names.index(genome)].split(', ')))
-    t6ss_absence_count = sum(1 for genome in t6ss_absence_genomes if any(gene != '*' for gene in genes[genome_names.index(genome)].split(', ')))
+    t6ss_presence_count = sum(1 for genome in t6ss_presence_genomes if any(gene != '*' for gene in genes[genome_names.index(genome)]))
+    t6ss_absence_count = sum(1 for genome in t6ss_absence_genomes if any(gene != '*' for gene in genes[genome_names.index(genome)]))
+    #print("t6ss_absence_count:",t6ss_absence_count,"t6ss_presence_count:",t6ss_presence_count )
     t6ss_presence_counts.append(t6ss_presence_count)
     t6ss_absence_counts.append(t6ss_absence_count)
 
@@ -43,6 +44,7 @@ for line in ortho_lines[1:]:
     col_totals = np.sum(observed, axis=0)
     total = np.sum(observed)
     expected = np.outer(row_totals, col_totals) / total
+    #print(row_totals,col_totals,total,expected)
 
     # Calculate the chi-square statistic
     chi2_statistic = np.sum((observed - expected)**2 / expected)
@@ -53,17 +55,19 @@ for line in ortho_lines[1:]:
     # Calculate the chi-square p-value using the survival function (1 - CDF)
     p = 1 - chi2.cdf(chi2_statistic, degrees_of_freedom)
     p_values.append(p)
+    print("p_value:",p)
 
 # Calculate the values and sort the data based on the value in descending order
 sorted_group_data = []
 for i, (presence_count, absence_count, p) in enumerate(zip(t6ss_presence_counts, t6ss_absence_counts, p_values), start=1):
-    value = math.log2((presence_count * (len(t6ss_absence_genomes) / len(t6ss_presence_genomes) + 1) / (absence_count + 1)))
+    value = math.log2((presence_count * len(t6ss_absence_genomes) / len(t6ss_presence_genomes) + 1) / (absence_count + 1))
     sorted_group_data.append((i, presence_count, absence_count, value, p))
 
 # Sort the data based on the value in descending order
 sorted_group_data.sort(key=lambda x: x[3], reverse=True)
 
 # Print the results
-for rank, (i, presence_count, absence_count, value, p) in enumerate(sorted_group_data, start=1):
-    group_line = ortho_lines[i].strip()
-    print(f"Group {i}:\tNo. T6SS+:{presence_count}\tNo. T6SS-:{absence_count}\tLog2 P/A Value:{value:.3f}\tChi-Square p-value: {p:.3f}")
+with open ("output_zh.txt","w") as fw:
+    for rank, (i, presence_count, absence_count, value, p) in enumerate(sorted_group_data, start=1):
+        group_line = ortho_lines[i].strip()
+        print(f"Group {i}:\tNo. T6SS+:{presence_count}\tNo. T6SS-:{absence_count}\tLog2 P/A Value:{value:.3f}\tChi-Square p-value: {p:.3f}",file=fw)
