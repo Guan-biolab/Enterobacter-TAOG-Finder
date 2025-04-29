@@ -17,7 +17,10 @@ Rename the `output_matrix.txt` as `orthologue_file.txt`, it can be the Comparati
 ```shell
 python3 Comparative_T6SS.py <orthologue_file.txt> <presence_genomes.txt> <absence_genomes.txt>
 ```
-The `presence_genomes.txt` and the `absence_genomes.txt` are the files contain which genomes contain complete T6SS and no T6SS.
+The `presence_genomes.txt` and the `absence_genomes.txt` are the files contain which genomes contain complete T6SS and no T6SS. When you found all the T6SS-associated ortholog groups, you can find all the proteins connected in genomics through `findconnected.py`. You just need to put the proteins in a file as input then the output will show on the screen.
+```shell
+python3 findconnected.py <positive_ID>
+```
+
 You can find all the example files in Datasets documents.
 
-## Datasets
